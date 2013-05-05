@@ -1,0 +1,6 @@
+skype2ever.properties
+lib
+target
+pom.xml
+*.jar
+.lein-repl-history
