@@ -17,9 +17,9 @@
 
 (def skypeDBPath
   (let [os (. System getProperty "os.name")]
-    (cond (>= (.indexOf os "Linux")   0) (System/exit 1) ;; TODO
+    (cond (>= (.indexOf os "Linux")   0) (str (. System getProperty "user.home") "/.Skype/" (get conf "skypeUser") "/main.db")
           (>= (.indexOf os "Mac")     0) (str (. System getProperty "user.home") "/Library/Application Support/Skype/" (get conf "skypeUser") "/main.db")
-          (>= (.indexOf os "Windows") 0) (System/exit 1) ;; TODO
+          (>= (.indexOf os "Windows") 0) (str (. System getProperty "user.home") "\\AppData\\Roaming\\Skype\\" (get conf "skypeUser") "\\main.db")
           :else (System/exit 1))))
 
 (def authToken (get conf "evernoteToken"))

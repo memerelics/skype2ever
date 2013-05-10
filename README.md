@@ -31,6 +31,5 @@ TODO
 ===========================
 
 * Use OAuth instead of developer token.
-* Find Skype DB path for Windows/Linux.
 * Automate daily store action (in what way?).
 
