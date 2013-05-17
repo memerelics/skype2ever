@@ -1,6 +1,10 @@
 skype2ever.properties
 m2repo/*
-!m2repo/.gitkeep
+!m2repo/MozillaGlue
+!m2repo/jbrowser
+!m2repo/MozillaInterfaces
+!m2repo/mozdom4java
+!m2repo/jna
+!m2repo/commons-compress
 target
-*.jar
 .lein-repl-history
