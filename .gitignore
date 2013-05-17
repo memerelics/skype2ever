@@ -1,5 +1,6 @@
 skype2ever.properties
-lib
+m2repo/*
+!m2repo/.gitkeep
 target
 *.jar
 .lein-repl-history

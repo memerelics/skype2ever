@@ -4,7 +4,7 @@
   ;; Add maven repository
   :repositories {"sonatype" "https://oss.sonatype.org/content/groups/public/"}
   ;; Override location of the local maven repository. Relative to project root.
-  :local-repo "lib"
+  :local-repo "m2repo"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/java.jdbc "0.3.0-alpha1"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
