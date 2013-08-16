@@ -12,6 +12,15 @@ How to use
 * [leiningen](https://github.com/technomancy/leiningen)
 * Your EverNote developer token. (for now...)
 
+
+## local repo
+
+install JavaFX and [Datepicker](http://myjavafx.blogspot.ch/2012/01/javafx-calendar-control.html) to local repo.
+
+    $ mvn install:install-file -DgroupId=local.oracle -DartifactId=jfxrt -Dversion=2.2.25 -Dpackaging=jar -DlocalRepositoryPath=m2repo -Dfile=$JAVA_HOME/jre/lib/jfxrt.jar
+    $ mvn install:install-file -DgroupId=local.schudt -DartifactId=datepicker -Dversion=0.0.2 -Dpackaging=jar -DlocalRepositoryPath=m2repo -Dfile=/path/to/download/datepicker-0.0.2.jar
+
+
 ## How to use
 
 ```````````
