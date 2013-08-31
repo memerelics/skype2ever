@@ -1,3 +1,4 @@
+.DS_Store
 skype2ever.properties
 m2repo/*
 !m2repo/MozillaGlue
