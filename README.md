@@ -32,7 +32,7 @@ skypeUser = yourSkypeUserNameHere
 evernoteToken = S=xx:U=xxx:E=xxxxxxxxxxx:C=xxxxxxxxxxx:P=xxx:A=xxxxxxxxxxx:V=x:H=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 evernoteHost = www.evernote.com
 
-$ lein run 20130505
+$ lein run 2013/05/05
 ```````````
 
 

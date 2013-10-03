@@ -7,6 +7,8 @@
   ;; Override location of the local maven repository. Relative to project root.
   :local-repo "m2repo"
   :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.clojure/clojure-contrib "1.2.0"]
+                 [matchure "0.10.1"]
                  [org.clojure/java.jdbc "0.3.0-alpha1"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [com.evernote/evernote-api "1.23"]

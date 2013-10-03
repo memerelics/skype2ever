@@ -1,5 +1,6 @@
 (ns skype2ever.main
-  (:use     [clojure.java.io :only (reader)])
+  (:use     [skype2ever.conf]
+            [skype2ever.skypedb])
   (:require [clojure.java.jdbc :as j]
             [clojure.java.jdbc.sql :as s])
   (:import [java.util Properties]
@@ -9,21 +10,6 @@
            [com.evernote.edam.notestore NoteStore$Client NoteFilter NoteList]
            [com.evernote.edam.type Note Notebook]
            [com.evernote.edam.error EDAMUserException]))
-
-(def conf
-  (let [conf (Properties.)]
-    (.load conf (reader "skype2ever.properties"))
-    conf))
-
-(def skypeDBPath
-  (let [os (. System getProperty "os.name")]
-    (cond (>= (.indexOf os "Linux")   0)
-              (str (. System getProperty "user.home") "/.Skype/" (get conf "skypeUser") "/main.db")
-          (>= (.indexOf os "Mac")     0)
-              (str (. System getProperty "user.home") "/Library/Application Support/Skype/" (get conf "skypeUser") "/main.db")
-          (>= (.indexOf os "Windows") 0) ; I don't know XP.
-              (str (. System getProperty "user.home") "\\AppData\\Roaming\\Skype\\" (get conf "skypeUser") "\\main.db")
-          :else (System/exit 1))))
 
 (def authToken (get conf "evernoteToken"))
 
@@ -39,69 +25,62 @@
     (NoteStore$Client. noteStoreProt noteStoreProt)))
 
 
+(def tableStyle (str "color:#535353;"
+                     "background-color:#ECECEC;"
+                     "border:1px solid rgba(0, 0, 0, 0.2);"
+                     "width:100%;"
+                     "font-size: 11px;"
+                     "margin: 0 0 0 3px;"))
+
+(def thStyle    (str "padding:3px;"
+                     "text-align:center;"
+                     "border:1px solid rgba(0, 0, 0, 0.2);"
+                     "color:#ECECEC;"
+                     "background-color:#636363;"))
+
+(defn- extract-time [message]
+  (.. (java.text.SimpleDateFormat. "HH:mm:ss")
+      (format (java.util.Date. (* 1000 (:timestamp message))))))
+
 (defn msgFormatter [message]
-  (str "<tr>"
-       "<td>" (. (java.text.SimpleDateFormat. "HH:mm:ss") format (java.util.Date. (* 1000 (:timestamp message)))) "</td>"
-       "<td>" (:from_dispname message) "</td>"
-       "<td>" (:body_xml message) "</td>"
-       "</tr>"))
+  (str "<tr><td>" (extract-time message) "</td>"
+           "<td>" (:from_dispname message) "</td>"
+           "<td>" (:body_xml message) "</td></tr>"))
+
+;; (msgFormatter (first messages))
 
 (defn saveMessages [title messages]
-  (let [note (Note.),
-        tableStyle (str "color:#535353;"
-                        "background-color:#ECECEC;"
-                        "border:1px solid rgba(0, 0, 0, 0.2);"
-                        "width:100%;"
-                        "font-size: 11px;"
-                        "margin: 0 0 0 3px;"),
-        thStyle    (str "padding:3px;"
-                        "text-align:center;"
-                        "border:1px solid rgba(0, 0, 0, 0.2);"
-                        "color:#ECECEC;"
-                        "background-color:#636363;")]
+  (println title)
+  (let [note (doto (Note.)
+               (.setTitle title)
+               (.addToTagNames "skype"))]
 
-    (. note setTitle title)
-    (. note addToTagNames "skype")
-    (. note setContent
-       (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-            "<en-note>"
-            "<table style='" tableStyle "'>"
-            "<tr>"
-            "<th style='" thStyle "'>time</th>"
-            "<th style='" thStyle "'>from</th>"
-            "<th style='" thStyle "'>text</th>"
-            "</tr>"
-            (clojure.string/join (map msgFormatter messages))
-            "</table>"
-            "</en-note>"))
+    (.. note (setContent
+               (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                    "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
+                    "<en-note>"
+                    "<table style='" tableStyle "'>"
+                    "<tr>"
+                    "<th style='" thStyle "'>time</th>"
+                    "<th style='" thStyle "'>from</th>"
+                    "<th style='" thStyle "'>text</th>"
+                    "</tr>"
+                    (clojure.string/join (map msgFormatter messages))
+                    "</table>"
+                    "</en-note>")))
 
-    (. noteStore createNote authToken note)))
+    (.. noteStore (createNote authToken note))))
 
+;; (def messages (find-messages "2013/09/26"))
+;; (def groupedMsg (group-by :chatname messages))
+;; (saveMessages "test-title" (val (second groupedMsg)))
+
+(defn gen-note-title [date groupedMsg]
+  (str "Skype[" date "] "
+       (friendly-chatname (key groupedMsg))))
 
 (defn -main [& args]
-  (if (nil? (first args)) (System/exit 1))
+  (let [date (first args)]
+    (doseq [groupedMsg (group-by :chatname (find-messages date))]
+      (saveMessages (gen-note-title date groupedMsg) (val groupedMsg)))))
 
-  (let [db {:classname "org.sqlite.JDBC" :subprotocol "sqlite"
-            :subname skypeDBPath}
-        targetDate (. (java.text.SimpleDateFormat. "yyyyMMdd") parse (first args)),
-        targetTimestamp (/ (. targetDate getTime) 1000), ;; milliseconds to seconds
-        messages (j/query db [(str "SELECT *"
-                                   " FROM messages"
-                                   " WHERE timestamp BETWEEN "
-                                   targetTimestamp
-                                   " AND "
-                                   (+ targetTimestamp (* 24 60 60))
-                                   " ORDER BY timestamp ASC")])]
-
-    (defn friendlyChatname [chatname]
-      (:friendlyname (first (j/query db [(str "SELECT * FROM chats WHERE name='" chatname "'")]))))
-
-    (map (fn [groupedMsg]
-           (saveMessages
-             (str "Skype["
-                  (. (java.text.SimpleDateFormat. "yyyy/MM/dd") format targetDate)
-                  "] "
-                  (friendlyChatname (first groupedMsg)))
-             (last groupedMsg)))
-         (group-by :chatname messages))))
