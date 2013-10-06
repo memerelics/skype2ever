@@ -14,5 +14,6 @@
                  [com.evernote/evernote-api "1.23"]
                  [local.oracle/jfxrt "2.2.25"]
                  [local.schudt/datepicker "0.0.2"]]
+  :java-source-paths ["src/java"]
   :aot [skype2ever.gui]
-  :main skype2ever.main)
+  :main skype2ever.gui)

@@ -52,3 +52,4 @@
 ;; (= (count (find-messages "2013/09/26" "2013/09/26"))
 ;;    (count (find-messages "2013/09/26")))
 
+(defn find-chats [] (select-from "chats" ""))

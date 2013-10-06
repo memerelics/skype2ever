@@ -40,5 +40,7 @@ TODO
 ===========================
 
 * Use OAuth instead of developer token.
-* Automate daily store action (in what way?).
+* sometimes friendlyname doesn't contain name of Group Chat
+* tweak chat group-by unit
+* find chats dynamically when user input skype name
 
